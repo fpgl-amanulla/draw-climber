@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private Transform rightWheel;
-    [SerializeField] private Transform leftWheel;
+    [SerializeField] private Transform rightWheelForward;
+    [SerializeField] private Transform leftWheelForward;
+    [SerializeField] private Transform rightWheelBack;
+    [SerializeField] private Transform leftWheelBack;
 
-    public Transform RightWheel { get { return rightWheel; } }
-    public Transform LeftWheel { get { return leftWheel; } }
+    public Transform RightWheelForward => rightWheelForward;
+    public Transform LeftWheelForward => leftWheelForward;
+    public Transform RightWheelBack => rightWheelBack;
+    public Transform LeftWheelBack => leftWheelBack;
 
 
     [SerializeField] private HingeJoint2D joint;
