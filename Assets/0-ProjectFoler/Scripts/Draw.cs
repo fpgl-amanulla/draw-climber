@@ -47,7 +47,7 @@ public class Draw : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUp
         Destroy(player.RightWheelBack.GetChild(1).gameObject); //DELETE PREVIOUS WHEELS
         Destroy(player.LeftWheelBack.GetChild(1).gameObject); //DELETE PREVIOUS WHEELS
 
-        player.HingeJoint.transform.localPosition = Vector3.zero; //Reset Motor for a little bug
+        //player.HingeJoint.transform.localPosition = Vector3.zero; //Reset Motor for a little bug
 
         InitWheel("Wheel_Right_Forward", player.RightWheelForward);
         InitWheel("Wheel_Left_Forward", player.LeftWheelForward);
@@ -66,7 +66,7 @@ public class Draw : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUp
         var wheel1 = Instantiate(drawingLine, Vector3.zero, Quaternion.identity);
         wheel1.layer = LayerMask.NameToLayer("Wheel");
         Transform pivot1 = new GameObject(wheelName).transform;
-        pivot1.position = touchPoints[0];
+        pivot1.position = touchPoints[touchPoints.Count / 2];
         wheel1.transform.SetParent(pivot1);
 
         pivot1.SetParent(wheel);
