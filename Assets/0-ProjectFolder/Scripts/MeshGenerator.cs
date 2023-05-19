@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -113,6 +114,10 @@ namespace project.climber
                 transform =
                 {
                     localScale = new Vector3(1, 1, 0)
+                },
+                gameObject =
+                {
+                    layer = LayerMask.NameToLayer("Line")
                 }
             };
 
