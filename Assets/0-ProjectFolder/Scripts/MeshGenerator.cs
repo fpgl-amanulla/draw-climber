@@ -13,27 +13,30 @@ namespace project.climber
         public GameObject leftArmB, rightArmB;
         public Camera _mainCamera;
 
-        //public Camera _drawCamera;
         public MeshCollider drawArea;
         public float lineThickness = .25f;
 
         private GameObject _drawing;
         private Mesh _drawingMesh;
-
-        public PaintSelector paintSelector;
+        private bool _isDrawingStarted = false;
+        private Coroutine _drawCoroutine;
         private bool IsCursorInDrawArea => drawArea.bounds.Contains(GetMousePos(11));
 
         private void Update()
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if (paintSelector.IsCursorInDrawArea)
-                    StartCoroutine(Draw());
+                if (IsCursorInDrawArea)
+                {
+                    _isDrawingStarted = true;
+                    _drawCoroutine = StartCoroutine(Draw());
+                }
             }
 
             if (Input.GetMouseButtonUp(0))
             {
-                StopAllCoroutines();
+                if (!_isDrawingStarted) return;
+                StopCoroutine(_drawCoroutine);
 
                 if (_drawing == null && _drawing.GetComponent<MeshFilter>() == null)
                 {
