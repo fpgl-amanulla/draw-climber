@@ -10,33 +10,16 @@ namespace project.climber
         public GameObject leftArmB, rightArmB;
         public Camera _mainCamera;
 
-        private GameObject _drawing;
-
         //public Camera _drawCamera;
         public MeshCollider drawArea;
         public float lineThickness = .25f;
 
+        private GameObject _drawing;
+        private Mesh _drawingMesh;
+
         public PaintSelector paintSelector;
 
-        private bool IsCursorInDrawArea
-        {
-            get { return drawArea.bounds.Contains(GetMousePos(11)); }
-            // get
-            // {
-            //     Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-            //
-            //     return true;
-            //
-            //     if (!Physics.Raycast(ray, out RaycastHit hit)) return false;
-            //     Debug.Log(hit.collider.name);
-            //     return hit.transform.gameObject.name == "Quad";
-            // }
-        }
-
-        private void Start()
-        {
-            //_mainCamera = Camera.main;
-        }
+        private bool IsCursorInDrawArea => drawArea.bounds.Contains(GetMousePos(11));
 
         private void Update()
         {
@@ -51,69 +34,38 @@ namespace project.climber
                 StopAllCoroutines();
                 Redraw();
 
-                Mesh mesh = _drawing.GetComponent<MeshFilter>().mesh;
+                _drawingMesh = _drawing.GetComponent<MeshFilter>().mesh;
 
-                Mesh leftArmMeshF = new Mesh
-                {
-                    vertices = mesh.vertices,
-                    triangles = mesh.triangles
-                };
-
-                Mesh rightArmMeshF = new Mesh
-                {
-                    vertices = mesh.vertices,
-                    triangles = mesh.triangles
-                };
-
-                Mesh leftArmMeshB = new Mesh
-                {
-                    vertices = mesh.vertices,
-                    triangles = mesh.triangles
-                };
-
-                Mesh rightArmMeshB = new Mesh
-                {
-                    vertices = mesh.vertices,
-                    triangles = mesh.triangles
-                };
-
-                leftArmF.GetComponent<MeshFilter>().mesh = leftArmMeshF;
-
-                MeshFilter RMF = rightArmF.GetComponent<MeshFilter>();
-                RMF.mesh = rightArmMeshF;
-                Vector3 centerPoint = GetCenterPoint(RMF);
-                Vector3[] displacementVertices = GetDisplacementVertices(RMF.mesh.vertices, centerPoint);
-                RMF.mesh.vertices = displacementVertices;
-                RMF.mesh.RecalculateBounds();
-
-                leftArmB.GetComponent<MeshFilter>().mesh = leftArmMeshB;
-                rightArmB.GetComponent<MeshFilter>().mesh = rightArmMeshB;
-
-                Destroy(rightArmF.GetComponent<MeshCollider>());
-                rightArmF.AddComponent<MeshCollider>().convex = true;
-                rightArmF.GetComponent<MeshCollider>().sharedMesh = rightArmMeshF;
-                // rightArmF.GetComponent<MeshCollider>().enabled = false;
-                // rightArmF.GetComponent<MeshCollider>().sharedMesh.RecalculateBounds();
-                // rightArmF.GetComponent<MeshCollider>().enabled = true;
-
-                leftArmB.GetComponent<MeshCollider>().sharedMesh = leftArmMeshB;
-                rightArmB.GetComponent<MeshCollider>().sharedMesh = rightArmMeshB;
-
-                // GameObject right = new GameObject("Right Arm");
-                // right.AddComponent<MeshRenderer>();
-                // MeshFilter meshFilter = right.AddComponent<MeshFilter>();
-                // MeshCollider meshCollider = right.AddComponent<MeshCollider>();
-                // meshFilter.mesh = rightArmMesh;
-                // meshCollider.sharedMesh = rightArmMesh;
-                //
-                // right.transform.SetParent(rightArm.transform);
-                // right.transform.localPosition = Vector3.zero;
+                SetNewMesh(leftArmF.GetComponent<MeshFilter>());
+                SetNewMesh(rightArmF.GetComponent<MeshFilter>());
+                SetNewMesh(leftArmB.GetComponent<MeshFilter>());
+                SetNewMesh(rightArmB.GetComponent<MeshFilter>());
 
                 Destroy(_drawing);
             }
         }
 
-        public Vector3 GetCenterPoint(MeshFilter originalFilter)
+        private void SetNewMesh(MeshFilter meshFilter)
+        {
+            Mesh newMesh = new Mesh
+            {
+                vertices = _drawingMesh.vertices,
+                triangles = _drawingMesh.triangles
+            };
+
+
+            meshFilter.mesh = newMesh;
+            Vector3 centerPoint = GetCenterPoint(meshFilter);
+            Vector3[] displacementVertices = GetDisplacementVertices(meshFilter.mesh.vertices, centerPoint);
+            meshFilter.mesh.vertices = displacementVertices;
+            meshFilter.mesh.RecalculateBounds();
+
+            Destroy(rightArmF.GetComponent<MeshCollider>());
+            rightArmF.AddComponent<MeshCollider>().convex = true;
+            rightArmF.GetComponent<MeshCollider>().sharedMesh = newMesh;
+        }
+
+        private Vector3 GetCenterPoint(MeshFilter originalFilter)
         {
             Vector3[] vertices = originalFilter.mesh.vertices;
             Vector3 center = Vector3.zero;
@@ -127,7 +79,7 @@ namespace project.climber
             return center;
         }
 
-        public Vector3[] GetDisplacementVertices(Vector3[] vertices, Vector3 center)
+        private Vector3[] GetDisplacementVertices(Vector3[] vertices, Vector3 center)
         {
             Vector3[] displacedVertices = new Vector3[vertices.Length];
 
@@ -142,11 +94,15 @@ namespace project.climber
 
         public GameObject GetMesh() => _drawing;
 
-        public IEnumerator Draw()
+        private IEnumerator Draw()
         {
-            _drawing = new GameObject("Drawing");
-
-            _drawing.transform.localScale = new Vector3(1, 1, 0);
+            _drawing = new GameObject("Drawing")
+            {
+                transform =
+                {
+                    localScale = new Vector3(1, 1, 0)
+                }
+            };
 
             _drawing.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = _drawing.AddComponent<MeshRenderer>();
