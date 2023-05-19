@@ -21,7 +21,6 @@ namespace project.climber
         private Mesh _drawingMesh;
 
         public PaintSelector paintSelector;
-
         private bool IsCursorInDrawArea => drawArea.bounds.Contains(GetMousePos(11));
 
         private void Update()
@@ -124,6 +123,7 @@ namespace project.climber
             _drawing.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = _drawing.AddComponent<MeshRenderer>();
             meshRenderer.material.color = Color.black;
+            meshRenderer.material.SetFloat(Shader.PropertyToID("_Glossiness"), 0);
 
             Mesh mesh = new Mesh();
 
