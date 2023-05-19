@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 
 namespace project.climber
 {
@@ -32,37 +34,47 @@ namespace project.climber
             if (Input.GetMouseButtonUp(0))
             {
                 StopAllCoroutines();
+
+                if (_drawing.GetComponent<MeshFilter>() == null)
+                {
+                    Destroy(_drawing);
+                    return;
+                }
+
                 Redraw();
+                CalculateNormals();
 
                 _drawingMesh = _drawing.GetComponent<MeshFilter>().mesh;
 
-                SetNewMesh(leftArmF.GetComponent<MeshFilter>());
-                SetNewMesh(rightArmF.GetComponent<MeshFilter>());
-                SetNewMesh(leftArmB.GetComponent<MeshFilter>());
-                SetNewMesh(rightArmB.GetComponent<MeshFilter>());
-
+                SetNewMesh(leftArmF, rightArmF, leftArmB, rightArmB);
                 Destroy(_drawing);
             }
         }
 
-        private void SetNewMesh(MeshFilter meshFilter)
+        private void SetNewMesh(params GameObject[] wheels)
         {
-            Mesh newMesh = new Mesh
+            for (int i = 0; i < wheels.Length; i++)
             {
-                vertices = _drawingMesh.vertices,
-                triangles = _drawingMesh.triangles
-            };
+                MeshFilter meshFilter = wheels[i].GetComponent<MeshFilter>();
+
+                Mesh newMesh = new Mesh
+                {
+                    vertices = _drawingMesh.vertices,
+                    triangles = _drawingMesh.triangles,
+                    normals = _drawingMesh.normals
+                };
 
 
-            meshFilter.mesh = newMesh;
-            Vector3 centerPoint = GetCenterPoint(meshFilter);
-            Vector3[] displacementVertices = GetDisplacementVertices(meshFilter.mesh.vertices, centerPoint);
-            meshFilter.mesh.vertices = displacementVertices;
-            meshFilter.mesh.RecalculateBounds();
+                meshFilter.mesh = newMesh;
+                Vector3 centerPoint = GetCenterPoint(meshFilter);
+                Vector3[] displacementVertices = GetDisplacementVertices(meshFilter.mesh.vertices, centerPoint);
+                meshFilter.mesh.vertices = displacementVertices;
+                meshFilter.mesh.RecalculateBounds();
 
-            Destroy(rightArmF.GetComponent<MeshCollider>());
-            rightArmF.AddComponent<MeshCollider>().convex = true;
-            rightArmF.GetComponent<MeshCollider>().sharedMesh = newMesh;
+                Destroy(wheels[i].GetComponent<MeshCollider>());
+                wheels[i].AddComponent<MeshCollider>().convex = true;
+                wheels[i].GetComponent<MeshCollider>().sharedMesh = newMesh;
+            }
         }
 
         private Vector3 GetCenterPoint(MeshFilter originalFilter)
@@ -176,7 +188,7 @@ namespace project.climber
 
             Vector3 lastMousePos = startPos;
 
-            while (true)
+            while (IsCursorInDrawArea)
             {
                 float minDistance = .1f;
                 float distance = Vector3.Distance(GetMousePos(), lastMousePos);
@@ -277,6 +289,17 @@ namespace project.climber
 
             vertices[0] = Vector3.zero;
             mesh.vertices = vertices;
+        }
+
+        private void CalculateNormals()
+        {
+            new MeshImporter(_drawing).Import();
+            ProBuilderMesh proBuilderMesh = _drawing.GetComponent<ProBuilderMesh>();
+
+            Normals.CalculateNormals(proBuilderMesh);
+
+            proBuilderMesh.ToMesh();
+            proBuilderMesh.Refresh();
         }
 
         private Vector3 GetMousePos(float z = 10)
