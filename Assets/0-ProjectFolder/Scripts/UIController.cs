@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace project.climber
@@ -39,12 +40,18 @@ namespace project.climber
 
             GameManager.Instance.OpenNextLevel();
         }
+
         public void RestartTheLevelButton()
         {
             drawArea.SetActive(true);
             gameOverPanel.SetActive(false);
 
             GameManager.Instance.RestartTheLevel();
+        }
+
+        public void Restart()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void UpdateLevelBar(float value)

@@ -35,7 +35,7 @@ namespace project.climber
             {
                 StopAllCoroutines();
 
-                if (_drawing.GetComponent<MeshFilter>() == null)
+                if (_drawing == null && _drawing.GetComponent<MeshFilter>() == null)
                 {
                     Destroy(_drawing);
                     return;
