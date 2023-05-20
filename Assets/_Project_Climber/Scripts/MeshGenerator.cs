@@ -83,6 +83,9 @@ namespace project.climber
                 meshFilter.mesh.vertices = displacementVertices;
                 meshFilter.mesh.RecalculateBounds();
 
+                // Vector3 originScale = wheels[i].transform.localScale;
+                // wheels[i].transform.localScale += Vector3.one * .25f;
+
                 Destroy(wheels[i].GetComponent<MeshCollider>());
                 wheels[i].AddComponent<MeshCollider>().convex = true;
                 wheels[i].GetComponent<MeshCollider>().sharedMesh = newMesh;
